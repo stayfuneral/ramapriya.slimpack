@@ -1,0 +1,24 @@
+{
+    "name": "ramapriya/slim-pack",
+    "description": "Slim Framework wrapper for bitrix",
+    "type": "bitrix-d7-module",
+    "minimum-stability": "stable",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Roman Gonyukov",
+            "email": "stay.funeral@gmail.com"
+        }
+    ],
+    "require": {
+        "slim/slim": "^4.10",
+        "slim/psr7": "^1.5",
+        "spatie/data-transfer-object": "^2.8",
+        "monolog/monolog": "^2.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ramapriya\\SlimPack\\": "lib"
+        }
+    }
+}
