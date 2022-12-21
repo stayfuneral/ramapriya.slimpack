@@ -14,7 +14,9 @@
         "slim/slim": "^4.10",
         "slim/psr7": "^1.5",
         "spatie/data-transfer-object": "^2.8",
-        "monolog/monolog": "^2.8"
+        "monolog/monolog": "^2.8",
+        "symfony/serializer": "^5.4",
+        "symfony/property-access": "^5.4"
     },
     "autoload": {
         "psr-4": {
