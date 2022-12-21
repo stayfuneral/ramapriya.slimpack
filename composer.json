@@ -1,5 +1,5 @@
 {
-    "name": "ramapriya/slim-pack",
+    "name": "stayfuneral/ramapriya.slimpack",
     "description": "Slim Framework wrapper for bitrix",
     "type": "bitrix-d7-module",
     "minimum-stability": "stable",
