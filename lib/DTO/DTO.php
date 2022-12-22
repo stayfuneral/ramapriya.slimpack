@@ -4,42 +4,42 @@ namespace Ramapriya\SlimPack\DTO;
 
 use Ramapriya\SlimPack\Interfaces\DTO\DTOInterface;
 use ReflectionProperty;
+use Spatie\DataTransferObject\Arr;
 use Spatie\DataTransferObject\DataTransferObject;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
 abstract class DTO extends DataTransferObject implements DTOInterface
 {
+    private array $modified = [];
+
+    private NameConverterInterface $converter;
+
     public function __construct(array $parameters = [])
     {
-        $this->prepareParameters($parameters);
+        $this->converter = new CamelCaseToSnakeCaseNameConverter();
+        $this->convertToCamelCase($parameters);
         parent::__construct($parameters);
     }
 
-    /**
-     * Подготовка параметров для передачи в DataTransferObject
-     * Конвертация из SNAKE_CASE в camelCase
-     *
-     * @param array $parameters
-     *
-     * @return void
-     */
-    public function prepareParameters(array &$parameters): void
+    public function convertToCamelCase(array &$parameters): void
     {
-        $converter  = new CamelCaseToSnakeCaseNameConverter();
         $parameters = array_change_key_case($parameters);
 
-        foreach ($parameters as $key =>&$value) {
-            $property = $converter->denormalize($key);
+        foreach ($parameters as $key => &$value) {
+            $property = $this->converter->denormalize($key);
 
-            if (!property_exists($this, $property)) {
+            if (! property_exists($this, $property)) {
                 continue;
             }
 
             $propertyObject = new ReflectionProperty($this, $property);
-            $type = $propertyObject->getType()->getName();
+            $type           = $propertyObject->getType()->getName();
 
             if ($type !== gettype($value) && is_scalar($type)) {
                 settype($value, $type);
+            } elseif (empty($value)) {
+                $value = null;
             } elseif (gettype($type) === self::class) {
                 $value = new $type($value);
             }
@@ -52,14 +52,52 @@ abstract class DTO extends DataTransferObject implements DTOInterface
         }
     }
 
-    /**
-     * Фабричный метод создания DTO
-     *
-     * @param array $parameters
-     *
-     * @return DTOInterface
-     */
-    public static function create(array $parameters): DTOInterface
+    public function convertToSnakeCase(): array
+    {
+        $data = [];
+
+        foreach ($this->toArray() as $property => $value) {
+            $field        = $this->converter->normalize($property);
+            $field        = strtoupper($field);
+            $data[$field] = $value;
+        }
+
+        return $data;
+    }
+
+    public function modify(array $parameters): void
+    {
+        $this->convertToCamelCase($parameters);
+
+        foreach ($parameters as $key => $value) {
+            if ($this->{$key} === $value) {
+                continue;
+            }
+
+            $this->modified[] = $key;
+            $this->{$key}     = $value;
+        }
+    }
+
+    public function getModified(): DataTransferObject
+    {
+        return $this->only(...$this->modified);
+    }
+
+    public function toString(): string
+    {
+        if (count($this->onlyKeys)) {
+            $array = Arr::only($this->all(), $this->onlyKeys);
+        } else {
+            $array = Arr::except($this->all(), $this->exceptKeys);
+        }
+
+        $array = $this->parseArray($array);
+
+        return json_encode($array, JSON_UNESCAPED_UNICODE);
+    }
+
+    public static function create(array $parameters): DataTransferObject
     {
         return new static($parameters);
     }
