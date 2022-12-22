@@ -1,6 +1,7 @@
 <?php
 
-use Ramapriya\SlimPack\Controllers\HelloController;
+use Ramapriya\SlimPack\ExampleData\Controllers\HelloController;
+use Ramapriya\SlimPack\Middlewares\Http\JsonMiddleware;
 use Slim\App;
 use Slim\Routing\RouteCollectorProxy;
 
@@ -8,6 +9,6 @@ use Slim\Routing\RouteCollectorProxy;
  * @var App $app
  */
 
-$app->group('/tst', function (RouteCollectorProxy $proxy) {
-    $proxy->get('/hello', [HelloController::class, 'index'])->setName('hello');
+$app->group('/slim', function (RouteCollectorProxy $proxy) {
+    $proxy->get('/hello', [HelloController::class, 'index'])->addMiddleware(new JsonMiddleware())->setName('hello');
 });
