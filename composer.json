@@ -11,6 +11,7 @@
         }
     ],
     "require": {
+        "composer/installers": "~1",
         "slim/slim": "^4.10",
         "slim/psr7": "^1.5",
         "spatie/data-transfer-object": "^2.8",
