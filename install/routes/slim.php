@@ -10,5 +10,5 @@ use Slim\Routing\RouteCollectorProxy;
  */
 
 $app->group('/slim', function (RouteCollectorProxy $proxy) {
-    $proxy->get('/hello', [HelloController::class, 'index'])->addMiddleware(new JsonMiddleware())->setName('hello');
+    $proxy->get('/hello', [HelloController::class, 'index'])->setName('hello');
 });
