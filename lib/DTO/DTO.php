@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
 abstract class DTO extends DataTransferObject implements DTOInterface
 {
-    private array $modified = [];
+    private array $modifiedKeys = [];
 
     private NameConverterInterface $converter;
 
@@ -74,14 +74,15 @@ abstract class DTO extends DataTransferObject implements DTOInterface
                 continue;
             }
 
-            $this->modified[] = $key;
+            $this->modifiedKeys[] = $key;
             $this->{$key}     = $value;
         }
     }
 
-    public function getModified(): DataTransferObject
+    public function modified(): DataTransferObject
     {
-        return $this->only(...$this->modified);
+        $dto = clone $this;
+        return $dto->only(...$this->modifiedKeys);
     }
 
     public function toString(): string

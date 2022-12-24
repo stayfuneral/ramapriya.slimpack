@@ -1,7 +1,6 @@
 <?php
 
 use Ramapriya\SlimPack\ExampleData\Controllers\HelloController;
-use Ramapriya\SlimPack\Middlewares\Http\JsonMiddleware;
 use Slim\App;
 use Slim\Routing\RouteCollectorProxy;
 
