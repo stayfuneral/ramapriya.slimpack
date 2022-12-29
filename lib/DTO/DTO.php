@@ -36,7 +36,7 @@ abstract class DTO extends DataTransferObject implements DTOInterface
             $propertyObject = new ReflectionProperty($this, $property);
             $type           = $propertyObject->getType()->getName();
 
-            if ($type !== gettype($value) && is_scalar($type)) {
+            if ($type !== gettype($value) && is_scalar($type) && $value !== null) {
                 settype($value, $type);
             } elseif (empty($value)) {
                 $value = null;
@@ -50,6 +50,11 @@ abstract class DTO extends DataTransferObject implements DTOInterface
                 unset($parameters[$key]);
             }
         }
+    }
+
+    public static function create(array $parameters): DataTransferObject
+    {
+        return new static($parameters);
     }
 
     public function convertToSnakeCase(): array
@@ -75,7 +80,7 @@ abstract class DTO extends DataTransferObject implements DTOInterface
             }
 
             $this->modifiedKeys[] = $key;
-            $this->{$key}     = $value;
+            $this->{$key}         = $value;
         }
     }
 
@@ -96,10 +101,5 @@ abstract class DTO extends DataTransferObject implements DTOInterface
         $array = $this->parseArray($array);
 
         return json_encode($array, JSON_UNESCAPED_UNICODE);
-    }
-
-    public static function create(array $parameters): DataTransferObject
-    {
-        return new static($parameters);
     }
 }
