@@ -45,7 +45,7 @@ interface DTOInterface
      * Получение только изменённых свойств
      * @return DataTransferObject
      */
-    public function getModified(): DataTransferObject;
+    public function modified(): DataTransferObject;
 
     /**
      * Форматирование объекта в строку
