@@ -11,25 +11,45 @@ use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
 abstract class DTO extends DataTransferObject implements DTOInterface
 {
-    private array $modifiedKeys = [];
+    protected array $modifiedKeys = [];
 
-    private NameConverterInterface $converter;
+    protected NameConverterInterface $converter;
 
-    public function __construct(array $parameters = [])
+    public function __construct(array $parameters = [], bool $convertToCamel = false, bool $keysToLower = false)
     {
         $this->converter = new CamelCaseToSnakeCaseNameConverter();
-        $this->convertToCamelCase($parameters);
+
+        if ($convertToCamel) {
+            $this->convertToCamelCase($parameters, $keysToLower);
+        }
+
+        $this->prepareParameters($parameters);
+
         parent::__construct($parameters);
     }
 
-    public function convertToCamelCase(array &$parameters): void
+    public function convertToCamelCase(array &$parameters, bool $keysToLower = true): void
     {
-        $parameters = array_change_key_case($parameters);
+        if ($keysToLower) {
+            $parameters = array_change_key_case($parameters);
+        }
 
         foreach ($parameters as $key => &$value) {
-            $property = $this->converter->denormalize($key);
+            $property              = $this->converter->denormalize($key);
+            $parameters[$property] = $value;
 
+            if ($property !== $key) {
+                unset($parameters[$key]);
+            }
+        }
+    }
+
+    public function prepareParameters(array &$parameters)
+    {
+        foreach ($parameters as $property => $value) {
             if (! property_exists($this, $property)) {
+                dump($property, $value);
+                unset($parameters[$property]);
                 continue;
             }
 
@@ -43,31 +63,24 @@ abstract class DTO extends DataTransferObject implements DTOInterface
             } elseif (gettype($type) === self::class) {
                 $value = new $type($value);
             }
-
-            $parameters[$property] = $value;
-
-            if ($property !== $key) {
-                unset($parameters[$key]);
-            }
         }
     }
 
-    public static function create(array $parameters): DataTransferObject
+    public static function create(array $parameters, bool $convertToCamel = false, bool $keysToLower = false): DataTransferObject
     {
         return new static($parameters);
     }
 
-    public function convertToSnakeCase(): array
+    public function convertToSnakeCase(bool $keysToUpper = false): array
     {
         $data = [];
 
         foreach ($this->toArray() as $property => $value) {
             $field        = $this->converter->normalize($property);
-            $field        = strtoupper($field);
             $data[$field] = $value;
         }
 
-        return $data;
+        return $keysToUpper ? array_change_key_case($data, CASE_UPPER) : $data;
     }
 
     public function modify(array $parameters): void
