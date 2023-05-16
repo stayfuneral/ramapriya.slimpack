@@ -79,4 +79,10 @@ class ramapriya_slimpack extends CModule
             'PATH' => rtrim(Options::getSlimApplicationPath(), '/') . '/index.php'
         ]);
     }
+
+    public function getModulePath(bool $absolute = true): array|string
+    {
+        $path = dirname(__DIR__);
+        return $absolute ? $path : str_ireplace($_SERVER['DOCUMENT_ROOT'] , '', $path);
+    }
 }
